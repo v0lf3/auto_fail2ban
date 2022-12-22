@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Instalujemy fail2ban za pomocą menedżera pakietów systemu
+sudo apt-get update
+sudo apt-get install fail2ban
+
+# Skopiujemy domyślny plik konfiguracyjny fail2ban do katalogu /etc/fail2ban
+sudo cp /etc/fail2ban/fail2ban.conf /etc/fail2ban/fail2ban.local
+
+# Otwórz plik konfiguracyjny w edytorze tekstu
+sudo nano /etc/fail2ban/fail2ban.local
+
+# W pliku konfiguracyjnym należy ustawić następujące opcje:
+# ignoreip - adresy IP, które mają być ignorowane przez fail2ban (np. adres IP serwera)
+# bantime - czas trwania banu (domyślnie 600 sekund)
+# maxretry - maksymalna liczba nieudanych prób logowania przed zbanowaniem adresu IP
+# findtime - okres czasu, w którym należy zliczyć nieudane próby logowania (domyślnie 600 sekund)
+
+# Dodajemy sekcję [sshd], aby włączyć obsługę serwera SSH przez fail2ban
+echo "[sshd]
+enabled = true
+port = 5000
+logpath = %(sshd_log)s
+maxretry = 3
+bantime = 86400" | sudo tee -a /etc/fail2ban/fail2ban.local
+
+# Zapisz i zamknij plik
+
+# Zrestartuj fail2ban, aby załadować nowe ustawienia
+sudo systemctl restart fail2ban
+
+# Sprawdź stan fail2ban
+sudo fail2ban-client status
